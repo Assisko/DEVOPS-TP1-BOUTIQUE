@@ -1,4 +1,4 @@
-name: Tests Maven CI
+name: CI — Tests + Build Docker
 
 on:
   push:
@@ -7,19 +7,46 @@ on:
     branches: [ main, master ]
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # Récuperer le code
       - name: Récupérer le code
         uses: actions/checkout@v4
-      #Installer JAVA 21
+
       - name: Installer Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
-      # 3. Lancer les tests
+          java-version: '17'
+          cache: maven
+
       - name: Lancer les tests
         run: mvn --batch-mode test
+
+  build-push:
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Connexion à ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build et push Docker
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
