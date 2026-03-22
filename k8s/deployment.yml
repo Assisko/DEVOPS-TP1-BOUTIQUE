@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boutique
+  namespace: default
+  labels:
+    app: boutique
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: boutique
+  template:
+    metadata:
+      labels:
+        app: boutique
+    spec:
+      containers:
+        - name: boutique
+          image: ghcr.io/assisko/devops-tp1-boutique:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: boutique-config
+            - secretRef:
+                name: boutique-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
