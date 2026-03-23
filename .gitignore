@@ -35,4 +35,6 @@ build/
 .vscode/
 
 ### Mac OS ###
-.DS_Store
+.DS_Storeminikube-darwin-amd64
+minikube-darwin-arm64
+k8s/secret.yml
